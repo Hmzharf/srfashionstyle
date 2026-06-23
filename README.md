@@ -128,14 +128,15 @@
 
 | ID | Skenario | Metode & Endpoint | Prekondisi / Input | Hasil Diharapkan | Hasil Aktual | Status |
 |----|----------|-------------------|---------------------|------------------|--------------|--------|
-| STR-01 | Positif — Ambil produk terlaris | `GET /api/store/best-products` | Data order dan produk tersedia; opsional `?limit=8` | **200 OK** — JSON array produk terlaris (maks. 8 item default) | | |
+| STR-01 | Positif — Ambil produk Best Product | `GET /api/store/best-products` | Ada produk dengan `is_featured = true` dan/atau ada penjualan; opsional `?limit=8` | **200 OK** — JSON array produk (featured tampil dulu badge "Pilihan", sisa slot diisi terlaris badge "Terlaris", maks. 8 item) | | |
 | STR-02 | Positif — Limit kustom | `GET /api/store/best-products?limit=4` | — | **200 OK** — JSON array maks. 4 item | | |
+| STR-03 | Positif — Tidak ada featured & tidak ada penjualan | `GET /api/store/best-products` | Tidak ada produk featured & belum ada transaksi | **200 OK** — JSON array kosong `[]` (section homepage disembunyikan) | | |
 
 ### 4.2 Homepage Media
 
 | ID | Skenario | Metode & Endpoint | Prekondisi / Input | Hasil Diharapkan | Hasil Aktual | Status |
 |----|----------|-------------------|---------------------|------------------|--------------|--------|
-| STR-03 | Positif — Ambil media homepage | `GET /api/store/homepage-media` | Data `promotion_media` ada (atau kosong) | **200 OK** — `{ hero_desktop, hero_mobile, promo }` (masing-masing objek atau null) | | |
+| STR-04 | Positif — Ambil media homepage | `GET /api/store/homepage-media` | Data `promotion_media` ada (atau kosong) | **200 OK** — `{ hero_desktop, hero_mobile, promo }` (masing-masing objek atau null) | | |
 
 ### 4.3 Categories
 
@@ -357,7 +358,17 @@
 | ADM-17 | Positif — Hapus media | `DELETE /api/admin/promotion-media/{id}` | Media dengan ID valid | **200 OK** — `message: "Media berhasil dihapus."` | | |
 | ADM-18 | Negatif — Hapus media tidak ditemukan | `DELETE /api/admin/promotion-media/99999` | ID tidak ada | **404 Not Found** — `message: "Media tidak ditemukan."` | | |
 
-### 8.3 Admin Dashboard & Reports
+### 8.3 Featured Products (Best Product Homepage)
+
+| ID | Skenario | Metode & Endpoint | Prekondisi / Input | Hasil Diharapkan | Hasil Aktual | Status |
+|----|----------|-------------------|---------------------|------------------|--------------|--------|
+| ADM-FP1 | Positif — List produk untuk dipilih | `GET /api/admin/featured-products` | Role admin/owner | **200 OK** — array produk dengan relasi kategori & gambar (termasuk flag `is_featured`) | | |
+| ADM-FP2 | Positif — Tandai produk featured | `POST /api/admin/featured-products/{id}/toggle` | `{ featured: true }` — ID produk valid | **200 OK** — `message: "Produk ditampilkan di Best Product homepage."` + data produk | | |
+| ADM-FP3 | Positif — Hapus produk dari featured | `POST /api/admin/featured-products/{id}/toggle` | `{ featured: false }` | **200 OK** — `message: "Produk dihapus dari Best Product homepage."` | | |
+| ADM-FP4 | Negatif — Produk tidak ditemukan | `POST /api/admin/featured-products/99999/toggle` | `{ featured: true }` — ID tidak ada | **404 Not Found** — `message: "Produk tidak ditemukan."` | | |
+| ADM-FP5 | Negatif — Field featured kosong/invalid | `POST /api/admin/featured-products/{id}/toggle` | `{ featured: "abc" }` | **422 Unprocessable** — validasi `boolean` | | |
+
+### 8.4 Admin Dashboard & Reports
 
 | ID | Skenario | Metode & Endpoint | Prekondisi / Input | Hasil Diharapkan | Hasil Aktual | Status |
 |----|----------|-------------------|---------------------|------------------|--------------|--------|
@@ -398,14 +409,14 @@
 | 1. Health Check | 1 | 1 | — |
 | 2. Auth Publik (Register, Login, Forgot/Reset) | 21 | 6 | 15 |
 | 3. Auth Terproteksi (Me, Profil, Password, Logout, OTP) | 26 | 10 | 16 |
-| 4. Store/Katalog | 30 | 17 | 13 |
+| 4. Store/Katalog | 31 | 18 | 13 |
 | 5. Checkout/Shipping/Payment | 20 | 8 | 12 |
 | 6. Customer (Orders, Reviews) | 17 | 8 | 9 |
 | 7. POS (Shifts, Transactions, Pay at Store) | 21 | 11 | 10 |
-| 8. Admin (Cashier Staff, Media, Dashboard, Reports) | 24 | 16 | 8 |
+| 8. Admin (Cashier Staff, Media, Featured, Dashboard, Reports) | 29 | 19 | 10 |
 | 9. Reports Export | 6 | 5 | 1 |
 | 10. Customer Home | 1 | 1 | — |
-| **TOTAL** | **167** | **83** | **84** |
+| **TOTAL** | **173** | **87** | **86** |
 
 > **Catatan Pengisian:**
 > 1. Kolom **Hasil Aktual** diisi dengan response aktual yang diterima dari server saat pengujian (payload JSON atau pesan error).
