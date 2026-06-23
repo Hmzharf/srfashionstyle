@@ -14,6 +14,44 @@ class BestProductsController extends Controller
     {
         $limit = (int) $request->input('limit', 8);
 
+        // 1) Produk yang ditandai admin tampil lebih dulu (badge "Pilihan").
+        $featured = Product::with('category')
+            ->where('is_featured', true)
+            ->where('is_active', true)
+            ->latest()
+            ->take($limit)
+            ->get();
+
+        $results = $featured->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'category' => $product->category->name ?? '-',
+                'price' => (float) $product->base_price,
+                'image' => $product->featured_image_url,
+                'badge' => 'Pilihan',
+            ];
+        })->values();
+
+        // 2) Kalau slot masih kurang, isi sisanya dari produk terlaris.
+        $remaining = $limit - $results->count();
+
+        if ($remaining > 0) {
+            $usedIds = $results->pluck('id')->all();
+
+            $bestSelling = $this->bestSellingProducts($request, $remaining, $usedIds);
+
+            $results = $results->concat($bestSelling)->values();
+        }
+
+        return response()->json($results);
+    }
+
+    /**
+     * Ambil produk terlaris (gabungan POS + online), kecualikan ID yang sudah dipakai.
+     */
+    private function bestSellingProducts(Request $request, int $take, array $excludeIds)
+    {
         $dateFrom = $request->input('date_from')
             ? Carbon::parse($request->input('date_from'))->startOfDay()
             : Carbon::now()->startOfMonth();
@@ -27,11 +65,7 @@ class BestProductsController extends Controller
             ->whereBetween('pt.created_at', [$dateFrom, $dateTo])
             ->where('pt.status', 'completed')
             ->groupBy('pti.product_name')
-            ->selectRaw('
-                pti.product_name,
-                SUM(pti.qty) as qty_pos,
-                SUM(pti.subtotal) as revenue_pos
-            ')
+            ->selectRaw('pti.product_name, SUM(pti.qty) as qty_pos')
             ->get();
 
         $onlineAgg = DB::table('order_items as oi')
@@ -41,66 +75,55 @@ class BestProductsController extends Controller
             ->whereIn('o.payment_status', ['paid', 'settlement', 'success', 'lunas', 'berhasil'])
             ->whereNotIn('o.status', ['cancelled', 'canceled', 'dibatalkan'])
             ->groupBy('oi.product_name')
-            ->selectRaw('
-                oi.product_name,
-                SUM(oi.qty) as qty_online,
-                SUM(oi.subtotal) as revenue_online
-            ')
+            ->selectRaw('oi.product_name, SUM(oi.qty) as qty_online')
             ->get();
 
-        $posByName = $posAgg->keyBy(function ($row) {
-            return strtolower(trim((string) $row->product_name));
-        });
+        $posByName = $posAgg->keyBy(fn ($row) => strtolower(trim((string) $row->product_name)));
+        $onlineByName = $onlineAgg->keyBy(fn ($row) => strtolower(trim((string) $row->product_name)));
 
-        $onlineByName = $onlineAgg->keyBy(function ($row) {
-            return strtolower(trim((string) $row->product_name));
-        });
-
-        $allKeys = $posByName->keys()
-            ->merge($onlineByName->keys())
-            ->unique();
+        $allKeys = $posByName->keys()->merge($onlineByName->keys())->unique();
 
         $top = $allKeys->map(function ($key) use ($posByName, $onlineByName) {
             $posRow = $posByName->get($key);
             $onlineRow = $onlineByName->get($key);
 
-            $productName = $posRow->product_name ?? ($onlineRow->product_name ?? '-');
-            $qtyPos = (int) ($posRow->qty_pos ?? 0);
-            $qtyOnline = (int) ($onlineRow->qty_online ?? 0);
-            $revenuePos = (float) ($posRow->revenue_pos ?? 0);
-            $revenueOnline = (float) ($onlineRow->revenue_online ?? 0);
-
             return [
-                'product_name' => $productName,
-                'qty_total' => $qtyPos + $qtyOnline,
-                'revenue_total' => $revenuePos + $revenueOnline,
+                'product_name' => $posRow->product_name ?? ($onlineRow->product_name ?? '-'),
+                'qty_total' => (int) ($posRow->qty_pos ?? 0) + (int) ($onlineRow->qty_online ?? 0),
             ];
         })
         ->sortByDesc('qty_total')
-        ->take($limit)
         ->values();
-        $results = $top->map(function ($item) {
+
+        $results = collect();
+
+        foreach ($top as $item) {
+            if ($results->count() >= $take) {
+                break;
+            }
+
             $product = Product::with('category')
                 ->whereRaw('LOWER(name) = ?', [strtolower(trim($item['product_name']))])
                 ->where('is_active', true)
+                ->whereNotIn('id', $excludeIds)
                 ->first();
 
             if (!$product) {
-                return null;
+                continue;
             }
 
-            return [
+            $excludeIds[] = $product->id;
+
+            $results->push([
                 'id' => $product->id,
                 'name' => $product->name,
                 'category' => $product->category->name ?? '-',
                 'price' => (float) $product->base_price,
                 'image' => $product->featured_image_url,
-                'qty_total' => $item['qty_total'],
-                'revenue_total' => $item['revenue_total'],
                 'badge' => 'Terlaris',
-            ];
-        })->filter()->values();
+            ]);
+        }
 
-        return response()->json($results);
+        return $results;
     }
 }

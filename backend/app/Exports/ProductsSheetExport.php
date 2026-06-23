@@ -46,7 +46,7 @@ class ProductsSheetExport implements FromCollection, WithHeadings, ShouldAutoSiz
             $product->id,
             $product->name ?? '-',
             $product->slug ?? '-',
-            $product->price ?? 0,
+            $product->base_price ?? 0,
             $product->variants->count(),
             $variantText ?: '-',
             optional($product->created_at)->format('d-m-Y H:i:s'),

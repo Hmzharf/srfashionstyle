@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\ShippingController;
 
 use App\Http\Controllers\Api\Admin\AdminReportsController;
 use App\Http\Controllers\Api\Admin\CashierStaffAdminController;
+use App\Http\Controllers\Api\Admin\FeaturedProductController;
 use App\Http\Controllers\Api\Admin\PosSummaryController;
 use App\Http\Controllers\Api\Admin\PromotionMediaController;
 use App\Http\Controllers\Api\Admin\TopProductsController;
@@ -239,6 +240,11 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/', [PromotionMediaController::class, 'store']);
             Route::post('/{id}/activate', [PromotionMediaController::class, 'activate']);
             Route::delete('/{id}', [PromotionMediaController::class, 'destroy']);
+        });
+
+        Route::prefix('featured-products')->group(function () {
+            Route::get('/', [FeaturedProductController::class, 'index']);
+            Route::post('/{id}/toggle', [FeaturedProductController::class, 'toggle']);
         });
     });
 

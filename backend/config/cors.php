@@ -29,5 +29,7 @@ return [
 
     'max_age' => 0,
 
+    // Token-based auth (Bearer) via Sanctum API tokens — no cookies needed.
+    // Set to true only if switching to Sanctum SPA cookie-based authentication.
     'supports_credentials' => false,
 ];

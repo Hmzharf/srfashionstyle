@@ -80,7 +80,7 @@ function POSPage() {
       const r = await api.get("/me");
       setUser(r.data.user);
     } catch {
-      /* ignore */
+      // Silently ignored — /me may fail for non-authenticated sessions
     }
   };
 
@@ -89,7 +89,7 @@ function POSPage() {
       const r = await api.get("/pos/shifts/active");
       setActiveShift(r.data.data || null);
     } catch {
-      /* ignore */
+      // Silently ignored — no active shift may exist for this user
     }
   };
 

@@ -11,15 +11,6 @@ class PosTransactionItem extends Model
     ];
     protected $casts = ['price' => 'decimal:2', 'subtotal' => 'decimal:2'];
     
-    public function cashierStaff()
-{
-    return $this->belongsTo(CashierStaff::class, 'cashier_staff_id');
-}
-
-public function shift()
-{
-    return $this->belongsTo(PosShift::class, 'pos_shift_id');
-}
     public function transaction() { return $this->belongsTo(PosTransaction::class, 'pos_transaction_id'); }
     public function variant() { return $this->belongsTo(ProductVariant::class, 'product_variant_id'); }
 }

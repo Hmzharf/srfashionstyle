@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Traits\SlugGenerator;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
+    use SlugGenerator;
+
     public function index()
     {
         return Category::all();
@@ -21,26 +23,13 @@ class CategoryController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi input
         $data = $request->validate([
             'name' => 'required|string|max:255',
         ]);
 
-        // Buat slug dasar dari name
-        $baseSlug = Str::slug($data['name']);
-
-        // Pastikan slug unik
-        $slug = $baseSlug;
-        $counter = 1;
-        while (Category::where('slug', $slug)->exists()) {
-            $slug = $baseSlug.'-'.$counter;
-            $counter++;
-        }
-
-        // Simpan kategori
         $category = Category::create([
             'name'      => $data['name'],
-            'slug'      => $slug,
+            'slug'      => $this->generateUniqueSlug(Category::class, $data['name']),
             'is_active' => true,
         ]);
 
@@ -53,17 +42,9 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        $baseSlug = Str::slug($data['name']);
-        $slug = $baseSlug;
-        $counter = 1;
-        while (Category::where('slug', $slug)->where('id', '!=', $category->id)->exists()) {
-            $slug = $baseSlug.'-'.$counter;
-            $counter++;
-        }
-
         $category->update([
             'name' => $data['name'],
-            'slug' => $slug,
+            'slug' => $this->generateUniqueSlug(Category::class, $data['name'], $category->id),
         ]);
 
         return response()->json($category);

@@ -62,7 +62,7 @@ function CustomerLayout({ children }) {
   );
 
   const userRole = String(
-    authUser?.role || authUser?.user_role || authUser?.role_name || ""
+    authUser?.role || ""
   ).toLowerCase();
 
   const getRoleTarget = () => {

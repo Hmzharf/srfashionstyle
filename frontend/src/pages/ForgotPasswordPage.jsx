@@ -1,39 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../lib/axios";
-import AuthLayout from "../components/AuthLayout";
+import AuthLayout, { authFieldStyle, authLabelStyle } from "../components/AuthLayout";
 
 function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const fieldStyle = {
-    width: "100%",
-    padding: "13px 14px",
-    borderRadius: 14,
-    border: "1px solid #d8d2ca",
-    background: "#fffdfa",
-    color: "#2b2620",
-    fontSize: 14,
-    lineHeight: 1.5,
-    boxSizing: "border-box",
-    outline: "none",
-    appearance: "none",
-    WebkitAppearance: "none",
-    MozAppearance: "none",
-    colorScheme: "light",
-  };
-
-  const labelStyle = {
-    display: "block",
-    marginBottom: 6,
-    fontSize: 13,
-    fontWeight: 600,
-    color: "#5b5248",
-    textAlign: "left",
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -98,13 +72,13 @@ function ForgotPasswordPage() {
 
       <form onSubmit={handleSubmit} style={{ display: "grid", gap: 16 }}>
         <div>
-          <label style={labelStyle}>Email</label>
+          <label style={authLabelStyle}>Email</label>
           <input
             type="email"
             placeholder="nama@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={fieldStyle}
+            style={authFieldStyle}
             autoComplete="email"
             required
           />

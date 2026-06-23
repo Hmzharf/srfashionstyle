@@ -9,9 +9,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token =
-      localStorage.getItem("auth_token") ||
-      localStorage.getItem("token");
+    const token = localStorage.getItem("auth_token");
 
     if (token) {
       config.headers = config.headers || {};
@@ -30,9 +28,7 @@ api.interceptors.response.use(
 
     if (status === 401) {
       localStorage.removeItem("auth_token");
-      localStorage.removeItem("token");
       localStorage.removeItem("auth_user");
-      localStorage.removeItem("user");
 
       if (window.location.pathname !== "/login") {
         window.location.href = "/login";

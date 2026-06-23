@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
+import api from "../../lib/axios";
 
 function AdminPromotionMediaPage() {
-  const API_BASE = "http://127.0.0.1:8000/api/admin/promotion-media";
 
   const [mediaList, setMediaList] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -15,41 +15,19 @@ function AdminPromotionMediaPage() {
   const [msg, setMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  const getAuthHeaders = () => {
-    const token =
-      localStorage.getItem("auth_token") || localStorage.getItem("token");
-
-    return {
-      Accept: "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
-  };
-
   const loadMedia = async ({ silent = false } = {}) => {
     try {
       if (!silent) setLoading(true);
       setErrorMsg("");
 
-      const res = await fetch(API_BASE, {
-        method: "GET",
-        headers: getAuthHeaders(),
-      });
-
-      const data = await res.json().catch(() => null);
-
-      console.log("LOAD MEDIA STATUS:", res.status);
-      console.log("LOAD MEDIA RESPONSE:", data);
-
-      if (!res.ok) {
-        throw new Error(data?.message || "Gagal memuat media promosi.");
-      }
+      const res = await api.get("/admin/promotion-media");
+      const data = res.data;
 
       setMediaList(Array.isArray(data) ? data : []);
       return true;
     } catch (e) {
-      console.error("LOAD MEDIA ERROR:", e);
       setMediaList([]);
-      setErrorMsg(e.message || "Gagal memuat media promosi.");
+      setErrorMsg(e.response?.data?.message || e.message || "Gagal memuat media promosi.");
       return false;
     } finally {
       if (!silent) setLoading(false);
@@ -106,25 +84,8 @@ function AdminPromotionMediaPage() {
       setMsg("");
       setErrorMsg("");
 
-      const res = await fetch(API_BASE, {
-        method: "POST",
-        headers: getAuthHeaders(),
-        body: formData,
-      });
-
-      const data = await res.json().catch(() => null);
-
-      console.log("UPLOAD STATUS:", res.status);
-      console.log("UPLOAD RESPONSE:", data);
-
-      if (!res.ok) {
-        throw new Error(
-          data?.message ||
-            data?.errors?.image?.[0] ||
-            data?.errors?.placement?.[0] ||
-            "Upload gagal."
-        );
-      }
+      const res = await api.post("/admin/promotion-media", formData);
+      const data = res.data;
 
       const refreshed = await loadMedia({ silent: true });
 
@@ -136,9 +97,14 @@ function AdminPromotionMediaPage() {
 
       resetForm();
     } catch (e) {
-      console.error("UPLOAD ERROR:", e);
       setMsg("");
-      setErrorMsg(e.message || "Upload gagal.");
+      const errData = e.response?.data;
+      setErrorMsg(
+        errData?.message ||
+          errData?.errors?.image?.[0] ||
+          errData?.errors?.placement?.[0] ||
+          "Upload gagal."
+      );
     } finally {
       setUploading(false);
     }
@@ -153,24 +119,8 @@ function AdminPromotionMediaPage() {
       const formData = new FormData();
       formData.append("type", type);
 
-      const res = await fetch(`${API_BASE}/${id}/activate`, {
-        method: "POST",
-        headers: getAuthHeaders(),
-        body: formData,
-      });
-
-      const data = await res.json().catch(() => null);
-
-      console.log("ACTIVATE STATUS:", res.status);
-      console.log("ACTIVATE RESPONSE:", data);
-
-      if (!res.ok) {
-        throw new Error(
-          data?.message ||
-            data?.errors?.type?.[0] ||
-            "Gagal mengatur media aktif."
-        );
-      }
+      const res = await api.post(`/admin/promotion-media/${id}/activate`, formData);
+      const data = res.data;
 
       const refreshed = await loadMedia({ silent: true });
 
@@ -180,9 +130,13 @@ function AdminPromotionMediaPage() {
           : "Status aktif berhasil diubah, tetapi daftar media gagal dimuat ulang."
       );
     } catch (e) {
-      console.error("ACTIVATE ERROR:", e);
       setMsg("");
-      setErrorMsg(e.message || "Gagal mengatur media aktif.");
+      const errData = e.response?.data;
+      setErrorMsg(
+        errData?.message ||
+          errData?.errors?.type?.[0] ||
+          "Gagal mengatur media aktif."
+      );
     } finally {
       setProcessingId(null);
     }
@@ -197,19 +151,8 @@ function AdminPromotionMediaPage() {
       setMsg("");
       setErrorMsg("");
 
-      const res = await fetch(`${API_BASE}/${id}`, {
-        method: "DELETE",
-        headers: getAuthHeaders(),
-      });
-
-      const data = await res.json().catch(() => null);
-
-      console.log("DELETE STATUS:", res.status);
-      console.log("DELETE RESPONSE:", data);
-
-      if (!res.ok) {
-        throw new Error(data?.message || "Gagal menghapus media.");
-      }
+      const res = await api.delete(`/admin/promotion-media/${id}`);
+      const data = res.data;
 
       const refreshed = await loadMedia({ silent: true });
 
@@ -219,9 +162,11 @@ function AdminPromotionMediaPage() {
           : "Media berhasil dihapus, tetapi daftar media gagal dimuat ulang."
       );
     } catch (e) {
-      console.error("DELETE ERROR:", e);
       setMsg("");
-      setErrorMsg(e.message || "Gagal menghapus media.");
+      const errData = e.response?.data;
+      setErrorMsg(
+        errData?.message || "Gagal menghapus media."
+      );
     } finally {
       setProcessingId(null);
     }

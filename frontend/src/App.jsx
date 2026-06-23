@@ -31,6 +31,7 @@ import PosTransactionsPage from "./pages/Pos/PosTransactionsPage";
 
 import CashierStaffPage from "./pages/admin/CashierStaffPage";
 import AdminPromotionMediaPage from "./pages/admin/AdminPromotionMediaPage";
+import FeaturedProductPage from "./pages/admin/FeaturedProductPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import VerifyEmailOtpPage from "./pages/VerifyEmailOtpPage";
@@ -260,6 +261,18 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/featured-products"
+          element={
+            <ProtectedRoute>
+              <RoleRoute allowedRoles={["admin", "owner"]}>
+                <AdminLayout>
+                  <FeaturedProductPage />
+                </AdminLayout>
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
 
 
         {/* POS ROUTES */}
@@ -348,6 +361,56 @@ function App() {
                 </POSLayout>
               </RoleRoute>
             </ProtectedRoute>
+          }
+        />
+
+        {/* STATIC PAGES */}
+        <Route
+          path="/about"
+          element={
+            <CustomerLayout>
+              <div style={{padding:60,textAlign:"center",minHeight:"60vh"}}><h1>Tentang Kami</h1><p style={{color:"#64748b",marginTop:12}}>Halaman sedang disiapkan.</p></div>
+            </CustomerLayout>
+          }
+        />
+        <Route
+          path="/blogs"
+          element={
+            <CustomerLayout>
+              <div style={{padding:60,textAlign:"center",minHeight:"60vh"}}><h1>Blog</h1><p style={{color:"#64748b",marginTop:12}}>Artikel segera hadir.</p></div>
+            </CustomerLayout>
+          }
+        />
+        <Route
+          path="/privacy-policy"
+          element={
+            <CustomerLayout>
+              <div style={{padding:60,minHeight:"60vh"}}><h1>Kebijakan Privasi</h1><p style={{color:"#64748b",marginTop:12}}>Dokumen sedang disiapkan.</p></div>
+            </CustomerLayout>
+          }
+        />
+        <Route
+          path="/terms"
+          element={
+            <CustomerLayout>
+              <div style={{padding:60,minHeight:"60vh"}}><h1>Syarat & Ketentuan</h1><p style={{color:"#64748b",marginTop:12}}>Dokumen sedang disiapkan.</p></div>
+            </CustomerLayout>
+          }
+        />
+        <Route
+          path="/faq"
+          element={
+            <CustomerLayout>
+              <div style={{padding:60,minHeight:"60vh"}}><h1>FAQ</h1><p style={{color:"#64748b",marginTop:12}}>Pertanyaan umum segera hadir.</p></div>
+            </CustomerLayout>
+          }
+        />
+        <Route
+          path="/contact"
+          element={
+            <CustomerLayout>
+              <div style={{padding:60,minHeight:"60vh"}}><h1>Kontak Kami</h1><p style={{color:"#64748b",marginTop:12}}>Informasi kontak segera hadir.</p></div>
+            </CustomerLayout>
           }
         />
 

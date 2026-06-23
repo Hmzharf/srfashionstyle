@@ -145,7 +145,7 @@ public function show($id)
         return $item['is_reviewed'] === true;
     });
 
-    \Log::info('ORDER DETAIL FETCHED', [
+    \Log::debug('ORDER DETAIL FETCHED', [
         'order_id' => $order->id,
         'order_code' => $order->order_code,
         'payment_status' => $order->payment_status,
@@ -213,12 +213,6 @@ public function show($id)
         $order = Order::findOrFail($id);
 
         $this->authorize('view', $order);
-
-        if ((int) $order->user_id !== (int) auth()->id()) {
-            return response()->json([
-                'message' => 'Kamu tidak memiliki akses ke pesanan ini.'
-            ], 403);
-        }
 
         if ($order->status === 'completed') {
             return response()->json([
@@ -289,8 +283,8 @@ public function show($id)
 
             if (!empty($variant->price) && (int) $variant->price > 0) {
                 $price = (int) $variant->price;
-            } elseif (!empty($variant->product?->price) && (int) $variant->product->price > 0) {
-                $price = (int) $variant->product->price;
+            } elseif (!empty($variant->product?->base_price) && (int) $variant->product->base_price > 0) {
+                $price = (int) $variant->product->base_price;
             }
 
             if ($price <= 0) {
@@ -299,7 +293,7 @@ public function show($id)
                     'debug' => [
                         'product_variant_id' => $variant->id,
                         'variant_price' => $variant->price ?? null,
-                        'product_price' => $variant->product?->price ?? null,
+                        'product_price' => $variant->product?->base_price ?? null,
                         'product_id' => $variant->product?->id ?? null,
                         'product_name' => $variant->product?->name ?? null,
                     ]

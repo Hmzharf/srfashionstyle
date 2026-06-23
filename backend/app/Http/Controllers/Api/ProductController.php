@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Traits\SlugGenerator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -11,25 +12,7 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    private function generateUniqueSlug(string $name, ?int $ignoreId = null): string
-    {
-        $baseSlug = Str::slug($name);
-        $slug = $baseSlug;
-        $counter = 1;
-
-        while (
-            Product::where('slug', $slug)
-                ->when($ignoreId, function ($query) use ($ignoreId) {
-                    $query->where('id', '!=', $ignoreId);
-                })
-                ->exists()
-        ) {
-            $slug = $baseSlug . '-' . $counter;
-            $counter++;
-        }
-
-        return $slug;
-    }
+    use SlugGenerator;
 
     public function index()
     {
@@ -115,7 +98,7 @@ class ProductController extends Controller
             $product = Product::create([
                 'category_id' => $validated['category_id'],
                 'name' => $validated['name'],
-                'slug' => $this->generateUniqueSlug($validated['name']),
+                'slug' => $this->generateUniqueSlug(Product::class, $validated['name']),
                 'description' => $validated['description'] ?? null,
                 'base_price' => $validated['base_price'],
                 'featured_image' => null,
@@ -179,7 +162,7 @@ class ProductController extends Controller
             $product->update([
                 'category_id' => $validated['category_id'],
                 'name' => $validated['name'],
-                'slug' => $this->generateUniqueSlug($validated['name'], $product->id),
+                'slug' => $this->generateUniqueSlug(Product::class, $validated['name'], $product->id),
                 'description' => $validated['description'] ?? null,
                 'base_price' => $validated['base_price'],
                 'is_active' => $request->boolean('is_active', $product->is_active),

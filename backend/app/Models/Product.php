@@ -18,10 +18,12 @@ class Product extends Model
         'base_price',
         'featured_image',
         'is_active',
+        'is_featured',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'is_featured' => 'boolean',
         'base_price' => 'decimal:2',
     ];
 

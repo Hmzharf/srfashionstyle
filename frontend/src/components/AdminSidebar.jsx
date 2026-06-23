@@ -19,9 +19,11 @@ function AdminSidebar() {
   const menuItems = [
     { path: "/admin", label: "Dashboard", end: true },
     { path: "/admin/products", label: "Produk" },
+    { path: "/admin/categories", label: "Kategori" },
     { path: "/admin/orders", label: "Orders" },
     { path: "/admin/reports", label: "Laporan" },
     { path: "/admin/cashier-staff", label: "Kasir" },
+    { path: "/admin/featured-products", label: "Best Product" },
     { path: "/admin/promotion-media", label: "Media Promosi" }, // ✅ menu baru
   ];
 

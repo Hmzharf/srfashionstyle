@@ -10,7 +10,7 @@ class InventoryController extends Controller
 {
     public function index()
     {
-        $inventories = Inventory::with('variant.product')
+        $inventories = Inventory::with('productVariant.product')
             ->orderBy('id', 'desc')
             ->get();
 
@@ -40,13 +40,13 @@ class InventoryController extends Controller
 
         return response()->json([
             'message' => 'Inventory berhasil ditambahkan',
-            'data'    => $inventory->load('variant.product'),
+            'data'    => $inventory->load('productVariant.product'),
         ], 201);
     }
 
     public function show(Inventory $inventory)
     {
-        return response()->json($inventory->load('variant.product'));
+        return response()->json($inventory->load('productVariant.product'));
     }
 
     public function update(Request $request, Inventory $inventory)
@@ -72,7 +72,7 @@ class InventoryController extends Controller
 
         return response()->json([
             'message' => 'Inventory berhasil diupdate',
-            'data'    => $inventory->load('variant.product'),
+            'data'    => $inventory->load('productVariant.product'),
         ]);
     }
 

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import api from "../lib/axios";
 
 function HomePage() {
   const container = {
@@ -57,10 +58,8 @@ function HomePage() {
     const fetchBestProducts = async () => {
       try {
         setIsBestLoading(true);
-        const res = await fetch(
-          "http://127.0.0.1:8000/api/store/best-products?limit=8"
-        );
-        const data = await res.json();
+        const res = await api.get("/store/best-products?limit=8");
+        const data = res.data;
 
         if (!ignore) {
           setBestProducts(Array.isArray(data) ? data : []);
@@ -78,8 +77,8 @@ function HomePage() {
 
     const fetchHomepageMedia = async () => {
       try {
-        const res = await fetch("http://127.0.0.1:8000/api/store/homepage-media");
-        const data = await res.json();
+        const res = await api.get("/store/homepage-media");
+        const data = res.data;
 
         if (!ignore) {
           setHomepageMedia({
@@ -615,6 +614,7 @@ function HomePage() {
         </div>
       </section>
 
+      {(isBestLoading || bestProducts.length > 0) && (
       <section
         style={{
           width: "100%",
@@ -804,6 +804,7 @@ function HomePage() {
           )}
         </div>
       </section>
+      )}
 
       <section
         style={{
