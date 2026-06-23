@@ -28,7 +28,6 @@ erDiagram
 
     orders ||--o{ order_items : "terdiri dari"
     orders ||--o{ reviews : "direview"
-    orders ||--o| pos_transactions : "dibayar via"
 
     cashier_staff ||--o{ pos_shifts : "bertugas"
     cashier_staff ||--o{ pos_transactions : "melayani"
@@ -47,6 +46,7 @@ erDiagram
         string postal_code
         timestamp email_verified_at
         string password
+        string remember_token
         timestamp created_at
         timestamp updated_at
     }
@@ -69,6 +69,7 @@ erDiagram
         decimal base_price
         string featured_image
         boolean is_active
+        boolean is_featured
         timestamp created_at
         timestamp updated_at
     }
@@ -369,7 +370,7 @@ LRS menyajikan struktur tabel akhir setelah transformasi, dengan hanya menampilk
 │  │     name        VARCHAR(255)│       │     name        VARCHAR(255)│              │
 │  │ UK  email       VARCHAR(255)│       │ UK  slug        VARCHAR(255)│              │
 │  │     role        ENUM        │       │     is_active   BOOLEAN     │              │
-│  │     phone       VARCHAR(20) │       │     created_at  TIMESTAMP   │              │
+│  │     phone       VARCHAR(255)│       │     created_at  TIMESTAMP   │              │
 │  │     address     TEXT        │       │     updated_at  TIMESTAMP   │              │
 │  │     city        VARCHAR(255)│       └─────────────────────────────┘              │
 │  │     postal_code VARCHAR(10) │                         │                          │
@@ -505,7 +506,7 @@ LRS menyajikan struktur tabel akhir setelah transformasi, dengan hanya menampilk
 | name | VARCHAR(255) | NOT NULL | Nama lengkap |
 | email | VARCHAR(255) | NOT NULL, UNIQUE | Alamat email (lowercase) |
 | role | ENUM('owner','admin','cashier','customer') | NOT NULL, DEFAULT 'customer' | Peran pengguna |
-| phone | VARCHAR(20) | NULLABLE | Nomor telepon |
+| phone | VARCHAR(255) | NULLABLE | Nomor telepon |
 | address | TEXT | NULLABLE | Alamat rumah |
 | city | VARCHAR(255) | NULLABLE | Kota |
 | postal_code | VARCHAR(10) | NULLABLE | Kode pos |
@@ -536,6 +537,7 @@ LRS menyajikan struktur tabel akhir setelah transformasi, dengan hanya menampilk
 | base_price | DECIMAL(12,2) | NOT NULL, DEFAULT 0 | Harga dasar |
 | featured_image | VARCHAR(255) | NULLABLE | Gambar utama |
 | is_active | BOOLEAN | NOT NULL, DEFAULT true | Status aktif |
+| is_featured | BOOLEAN | NOT NULL, DEFAULT false | Ditampilkan di section Best Product homepage |
 | created_at | TIMESTAMP | NULLABLE | — |
 | updated_at | TIMESTAMP | NULLABLE | — |
 
@@ -546,7 +548,7 @@ LRS menyajikan struktur tabel akhir setelah transformasi, dengan hanya menampilk
 |-------|------|-----------|------------|
 | id | BIGINT UNSIGNED | PK, AUTO_INCREMENT | ID unik varian |
 | product_id | BIGINT UNSIGNED | FK → products(id), NOT NULL | Produk induk |
-| sku | VARCHAR(100) | NOT NULL, UNIQUE | Kode SKU |
+| sku | VARCHAR(255) | NOT NULL, UNIQUE | Kode SKU |
 | color | VARCHAR(50) | NULLABLE | Warna |
 | size | VARCHAR(20) | NULLABLE | Ukuran |
 | price | DECIMAL(12,2) | NOT NULL | Harga varian |
@@ -591,14 +593,14 @@ LRS menyajikan struktur tabel akhir setelah transformasi, dengan hanya menampilk
 | order_code | VARCHAR(255) | NOT NULL, UNIQUE | Kode order (generated) |
 | customer_name | VARCHAR(255) | NOT NULL | Nama pemesan |
 | email | VARCHAR(255) | NOT NULL | Email pemesan |
-| phone | VARCHAR(20) | NOT NULL | Telepon pemesan |
+| phone | VARCHAR(255) | NOT NULL | Telepon pemesan |
 | address | TEXT | NOT NULL | Alamat pengiriman |
 | city | VARCHAR(255) | NOT NULL | Kota pengiriman |
-| postal_code | VARCHAR(10) | NOT NULL | Kode pos pengiriman |
+| postal_code | VARCHAR(255) | NOT NULL | Kode pos pengiriman |
 | shipping_method | VARCHAR(255) | NULLABLE | jnt / pickup |
 | shipping_service_code | VARCHAR(255) | NULLABLE | Kode layanan J&T |
 | shipping_label | VARCHAR(255) | NULLABLE | Label layanan |
-| payment_method | VARCHAR(100) | NOT NULL | Metode pembayaran |
+| payment_method | VARCHAR(255) | NOT NULL | Metode pembayaran |
 | notes | TEXT | NULLABLE | Catatan |
 | channel | ENUM('online','pos') | NOT NULL, DEFAULT 'online' | Channel penjualan |
 | pos_payment_method | VARCHAR(50) | NULLABLE | Metode bayar POS (cash/qris/transfer_bca) |
@@ -627,9 +629,9 @@ LRS menyajikan struktur tabel akhir setelah transformasi, dengan hanya menampilk
 | product_id | BIGINT UNSIGNED | FK → products(id), NOT NULL | Produk |
 | product_variant_id | BIGINT UNSIGNED | FK → product_variants(id), NOT NULL | Varian yang dipilih |
 | product_name | VARCHAR(255) | NOT NULL | Snapshot nama produk |
-| sku | VARCHAR(100) | NOT NULL | Snapshot SKU |
-| color | VARCHAR(50) | NULLABLE | Snapshot warna |
-| size | VARCHAR(20) | NULLABLE | Snapshot ukuran |
+| sku | VARCHAR(255) | NOT NULL | Snapshot SKU |
+| color | VARCHAR(255) | NULLABLE | Snapshot warna |
+| size | VARCHAR(255) | NULLABLE | Snapshot ukuran |
 | price | DECIMAL(15,2) | NOT NULL | Harga satuan saat order |
 | qty | INT | NOT NULL | Jumlah |
 | subtotal | DECIMAL(15,2) | NOT NULL | price × qty |
@@ -772,7 +774,7 @@ products
   └── (1:N) reviews              [product_id, CASCADE]
 
 product_variants
-  ├── (1:1) inventories          [product_variant_id, CASCADE]
+  ├── (1:N) inventories          [product_variant_id, CASCADE]
   ├── (1:N) order_items          [product_variant_id, CASCADE]
   └── (1:N) pos_transaction_items [product_variant_id, NO ACTION]
 
