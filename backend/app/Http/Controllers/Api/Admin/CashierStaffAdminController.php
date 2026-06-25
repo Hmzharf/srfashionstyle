@@ -260,8 +260,9 @@ public function summary()
     $inactiveStaff = CashierStaff::where('is_active', false)->count();
     $openShiftCount = PosShift::where('status', 'open')->count();
     $closedShiftCount = PosShift::where('status', 'closed')->count();
+    // Jumlah transaksi hanya penjualan asli; revenue net (completed + refunded negatif).
     $totalTransactions = PosTransaction::where('status', 'completed')->count();
-    $totalRevenue = (float) PosTransaction::where('status', 'completed')->sum('grand_total');
+    $totalRevenue = (float) PosTransaction::whereIn('status', ['completed', 'refunded'])->sum('grand_total');
 
     return response()->json([
         'success' => true,

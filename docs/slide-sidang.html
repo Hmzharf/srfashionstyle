@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slide Sidang KP — SR Fashion Style</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --navy: #0f3460;
+    --dark: #16213e;
+    --ink: #1a1a2e;
+    --accent: #e94560;
+    --teal: #0f766e;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --bg-soft: #f8fafc;
+  }
+
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    color: #1e293b;
+    background: #475569;
+  }
+
+  /* ===== SLIDE FRAME (16:9) ===== */
+  .slide {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    margin: 24px auto;
+    background: #ffffff;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* slide number + footer band */
+  .slide .footer {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    font-size: 11px;
+    color: var(--muted);
+    border-top: 1px solid var(--line);
+    background: #fff;
+  }
+  .slide .footer .brand { font-weight: 700; color: var(--navy); }
+  .slide .pagenum {
+    font-weight: 700; color: var(--accent);
+  }
+
+  .content {
+    flex: 1;
+    padding: 46px 56px 44px;
+  }
+
+  /* section eyebrow */
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 14px;
+  }
+  h1.title {
+    font-size: 34px;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1.18;
+    margin-bottom: 8px;
+  }
+  h2.sub { font-size: 17px; font-weight: 500; color: var(--muted); }
+
+  .accent-bar {
+    width: 90px; height: 5px; border-radius: 3px;
+    background: var(--accent); margin: 16px 0 26px;
+  }
+
+  ul.points { list-style: none; }
+  ul.points li {
+    position: relative;
+    padding: 9px 0 9px 30px;
+    font-size: 18px;
+    line-height: 1.5;
+    border-bottom: 1px dashed var(--line);
+  }
+  ul.points li:last-child { border-bottom: none; }
+  ul.points li::before {
+    content: "";
+    position: absolute; left: 4px; top: 17px;
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--accent);
+  }
+  ul.points li strong { color: var(--navy); }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px 22px;
+    background: var(--bg-soft);
+  }
+  .card h3 {
+    font-size: 17px; color: var(--navy); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card .ico {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--accent); color:#fff; font-size: 14px;
+    display:inline-flex; align-items:center; justify-content:center; font-weight:800;
+  }
+  .card p, .card li { font-size: 14.5px; line-height: 1.55; color: #334155; }
+  .card ul { list-style: none; }
+  .card ul li { padding: 4px 0 4px 16px; position: relative; }
+  .card ul li::before {
+    content: "›"; position: absolute; left: 0; color: var(--accent); font-weight: 800;
+  }
+
+  /* stat badges */
+  .stat-row { display: flex; gap: 18px; margin-top: 8px; flex-wrap: wrap; }
+  .stat {
+    flex: 1; min-width: 150px;
+    border: 1px solid var(--line); border-radius: 14px;
+    padding: 18px 16px; text-align: center; background: #fff;
+  }
+  .stat .num { font-size: 34px; font-weight: 800; color: var(--accent); line-height: 1; }
+  .stat .lbl { font-size: 12.5px; color: var(--muted); margin-top: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  /* tables */
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  thead th {
+    background: var(--ink); color: #fff; text-align: left;
+    padding: 9px 12px; font-size: 13px; font-weight: 600;
+  }
+  tbody td { padding: 8px 12px; border-bottom: 1px solid var(--line); }
+  tbody tr:nth-child(even) { background: var(--bg-soft); }
+
+  .tag {
+    display:inline-block; padding: 2px 10px; border-radius: 999px;
+    font-size: 12px; font-weight: 700;
+  }
+  .tag.green { background:#ecfdf5; color:#15803d; }
+  .tag.blue { background:#eff6ff; color:#1d4ed8; }
+  .tag.red { background:#fef2f2; color:#b91c1c; }
+
+  /* ===== COVER ===== */
+  .cover {
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 55%, #16213e 100%);
+    color: #fff; justify-content: center; align-items: center; text-align: center;
+    padding: 0 70px;
+  }
+  .cover .logo {
+    font-size: 58px; font-weight: 900; letter-spacing: -2px; color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .cover .kp { font-size: 14px; letter-spacing: 0.32em; text-transform: uppercase; color:#94a3b8; margin-bottom: 26px; }
+  .cover h1 {
+    font-size: 30px; font-weight: 800; line-height: 1.32; max-width: 980px; margin-bottom: 26px;
+  }
+  .cover .accent-bar { margin: 0 auto 26px; }
+  .cover .meta { font-size: 16px; color: #cbd5e1; line-height: 1.9; }
+  .cover .meta strong { color: #fff; }
+  .cover .univ { margin-top: 28px; font-size: 14px; color:#94a3b8; }
+
+  /* divider/section slide */
+  .section-slide {
+    background: linear-gradient(135deg, #16213e 0%, #0f3460 100%);
+    color:#fff; justify-content:center; padding: 0 80px;
+  }
+
+  /* flow diagram */
+  .flow { display:flex; align-items:center; gap:10px; flex-wrap: wrap; margin-top: 6px; }
+  .flow .node {
+    background:#fff; border:1.5px solid var(--navy); color:var(--navy);
+    border-radius:10px; padding:10px 14px; font-size:13.5px; font-weight:600;
+  }
+  .flow .arrow { color:var(--accent); font-weight:800; font-size:18px; }
+
+  .note {
+    margin-top: 18px; padding: 12px 16px; border-left: 4px solid var(--accent);
+    background: #fffbeb; border-radius: 0 8px 8px 0; font-size: 14px; color:#92400e;
+  }
+
+  @media print {
+    body { background: #fff; }
+    .slide { margin: 0; box-shadow: none; width: 100%; height: 100vh; }
+    @page { size: 1280px 720px; margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1 — COVER -->
+<section class="slide cover">
+  <div class="logo">SR</div>
+  <div class="kp">Sidang Laporan Kerja Praktek</div>
+  <h1>RANCANG BANGUN SISTEM MARKETPLACE DAN POINT-OF-SALE TERINTEGRASI UNTUK SR FASHION STYLE UMKM BERBASIS WEB</h1>
+  <div class="accent-bar"></div>
+  <div class="meta">
+    Menggunakan Metode <strong>SDLC</strong> · Studi Kasus &amp; Implementasi Berorientasi Kebutuhan Pengguna
+  </div>
+  <div class="univ">Program Studi Teknik Informatika &nbsp;·&nbsp; Universitas Pamulang &nbsp;·&nbsp; T.A. 2024/2025</div>
+  <div class="footer" style="background:transparent;border:none;color:#94a3b8;">
+    <span class="brand" style="color:#fff;">SR Fashion Style</span>
+    <span>Marketplace + POS Terintegrasi</span>
+  </div>
+</section>
+
+<!-- SLIDE 2 — PROFIL USAHA -->
+<section class="slide">
+  <div class="content">
+    <div class="eyebrow">Profil Usaha</div>
+    <h1 class="title">Mengenal SR Fashion Style</h1>
+    <div class="accent-bar"></div>
+    <div class="two-col">
+      <div>
+        <ul class="points">
+          <li><strong>Bidang usaha:</strong> Penjualan pakaian pria &amp; wanita (UMKM fashion)</li>
+          <li><strong>Lokasi:</strong> Kec. Teluknaga, Kab. Tangerang, Banten</li>
+          <li><strong>Owner:</strong> Siti Rohanah Wijaya (latar belakang desain grafis fashion)</li>
+          <li><strong>Penanggung jawab modal:</strong> Bapak Surta Wijaya</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3><span class="ico">V</span> Visi</h3>
+        <p>Menjadi toko pakaian pria dan wanita yang terpercaya dan diminati masyarakat, menyediakan produk fashion berkualitas, terjangkau, dan mengikuti tren.</p>
+        <h3 style="margin-top:16px;"><span class="ico">S</span> Struktur</h3>
+        <ul>
+          <li>Penanggung Jawab Modal</li>
+          <li>Owner / Pengelola Usaha</li>
+          <li>Admin / Staf Administrasi</li>
+          <li>Kasir (Karyawan)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand">SR Fashion Style — Sidang KP</span><span class="pagenum">02</span></div>
+</section>
+
+<!-- SLIDE 3 — LATAR BELAKANG & MASALAH -->
+<section class="slide">
+  <div class="content">
+    <div class="eyebrow">Pendahuluan</div>
+    <h1 class="title">Latar Belakang &amp; Permasalahan</h1>
+    <div class="accent-bar"></div>
+    <p style="font-size:17px;line-height:1.6;color:#334155;margin-bottom:20px;">
+      Proses penjualan, pencatatan transaksi, dan pengelolaan stok di SR Fashion Style masih
+      dilakukan <strong>secara manual</strong> dan belum terintegrasi, sehingga rawan kesalahan
+      dan jangkauan pemasaran terbatas.
+    </p>
+    <div class="three-col">
+      <div class="card"><h3><span class="ico">1</span> Manual</h3><p>Pencatatan transaksi manual sehingga rawan terjadi kesalahan.</p></div>
+      <div class="card"><h3><span class="ico">2</span> Stok</h3><p>Pengelolaan stok belum terorganisir &amp; sulit dipantau real-time.</p></div>
+      <div class="card"><h3><span class="ico">3</span> Offline</h3><p>Belum ada penjualan online, pelanggan harus datang ke toko.</p></div>
+    </div>
+    <div class="three-col" style="margin-top:18px;">
+      <div class="card"><h3><span class="ico">4</span> Pasar</h3><p>Jangkauan pemasaran masih terbatas pada area sekitar.</p></div>
+      <div class="card"><h3><span class="ico">5</span> Terpisah</h3><p>Tidak ada integrasi antara penjualan offline dan online.</p></div>
+      <div class="card" style="background:#fff5f6;border-color:#f6c9d1;"><h3><span class="ico">→</span> Solusi</h3><p>Sistem <strong>Marketplace + POS terintegrasi</strong> berbasis web.</p></div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand">SR Fashion Style — Sidang KP</span><span class="pagenum">03</span></div>
+</section>
+
+<!-- SLIDE 4 — RUMUSAN MASALAH & TUJUAN -->
+<section class="slide">
+  <div class="content">
+    <div class="eyebrow">Pendahuluan</div>
+    <h1 class="title">Rumusan Masalah &amp; Tujuan</h1>
+    <div class="accent-bar"></div>
+    <div class="two-col">
+      <div class="card">
+        <h3><span class="ico">?</span> Rumusan Masalah</h3>
+        <ul>
+          <li>Bagaimana merancang &amp; membangun sistem marketplace dan POS terintegrasi berbasis web?</li>
+          <li>Bagaimana mengintegrasikan penjualan offline dan online dalam satu sistem terpadu?</li>
+          <li>Bagaimana merancang sistem yang user-friendly sesuai kebutuhan UMKM?</li>
+          <li>Bagaimana sistem meningkatkan efisiensi pengelolaan transaksi &amp; stok?</li>
+        </ul>
+      </div>
+      <div class="card" style="background:#eef6f4;border-color:#bfe0d9;">
+        <h3><span class="ico" style="background:var(--teal);">✓</span> Tujuan Penelitian</h3>
+        <ul>
+          <li>Merancang &amp; membangun sistem marketplace dan POS terintegrasi berbasis web.</li>
+          <li>Mengelola transaksi penjualan offline &amp; online secara terpusat.</li>
+          <li>Mempermudah pengelolaan data produk, stok, dan transaksi.</li>
+          <li>Meningkatkan efisiensi operasional &amp; memperluas jangkauan pemasaran.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand">SR Fashion Style — Sidang KP</span><span class="pagenum">04</span></div>
+</section>
+
+<!-- SLIDE 5 — BATASAN & METODE SDLC -->
+<section class="slide">
+  <div class="content">
+    <div class="eyebrow">Metodologi</div>
+    <h1 class="title">Batasan &amp; Metode Pengembangan (SDLC)</h1>
+    <div class="accent-bar"></div>
+    <div class="two-col" style="grid-template-columns: 0.85fr 1.15fr;">
+      <div class="card">
+        <h3><span class="ico">B</span> Batasan</h3>
+        <ul>
+          <li>Berbasis web (bukan aplikasi mobile native)</li>
+          <li>Fitur: marketplace, POS, manajemen produk, stok, laporan</li>
+          <li>Lingkup penggunaan: SR Fashion Style</li>
+          <li>Metode pengembangan: SDLC</li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-size:15px;color:#334155;margin-bottom:14px;">Pengembangan mengikuti tahapan <strong>Software Development Life Cycle (SDLC)</strong>, dilengkapi observasi, wawancara pemilik usaha, dan studi pustaka:</p>
+        <div class="flow">
+          <span class="node">Analisis Kebutuhan</span><span class="arrow">→</span>
+          <span class="node">Perancangan</span><span class="arrow">→</span>
+          <span class="node">Implementasi</span>
+        </div>
+        <div class="flow" style="margin-top:10px;">
+          <span class="node">Pengujian</span><span class="arrow">→</span>
+          <span class="node">Pemeliharaan</span>
+        </div>
+        <div class="note">Pendekatan <strong>berorientasi kebutuhan pengguna</strong> — sistem dirancang langsung berdasarkan proses bisnis nyata SR Fashion Style.</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand">SR Fashion Style — Sidang KP</span><span class="pagenum">05</span></div>
+</section>
+
+<!-- SLIDE 6 — SOLUSI / OVERVIEW SISTEM -->
+<section class="slide">
+  <div class="content">
+    <div class="eyebrow">Solusi yang Dibangun</div>
+    <h1 class="title">Satu Sistem, Dua Kanal Penjualan Terpusat</h1>
+    <div class="accent-bar"></div>
+    <div class="flow" style="justify-content:center;margin:10px 0 22px;">
+      <span class="node" style="border-color:var(--teal);color:var(--teal);">Marketplace Online<br>(Customer)</span>
+      <span class="arrow">→</span>
+      <span class="node" style="background:var(--ink);color:#fff;border-color:var(--ink);">Sistem Terpusat<br>Produk · Stok · Laporan</span>
+      <span class="arrow">←</span>
+      <span class="node" style="border-color:var(--accent);color:var(--accent);">POS Kasir<br>(Offline)</span>
+    </div>
+    <div class="three-col">
+      <div class="card"><h3><span class="ico">🛒</span> Marketplace</h3><p>Katalog produk, keranjang, checkout, pembayaran, &amp; pelacakan pesanan online.</p></div>
+      <div class="card"><h3><span class="ico">🧾</span> POS Kasir</h3><p>Transaksi langsung di toko, shift kasir, cetak struk, &amp; refund.</p></div>
+      <div class="card"><h3><span class="ico">📊</span> Dashboard</h3><p>Manajemen produk &amp; stok, laporan penjualan online + POS, ekspor Excel/PDF.</p></div>
+    </div>
+    <div class="note" style="background:#eef6f4;border-color:var(--teal);color:#0f5e57;">Stok berkurang otomatis &amp; tersinkron real-time antara penjualan online dan offline.</div>
+  </div>
+  <div class="footer"><span class="brand">SR Fashion Style — Sidang KP</span><span class="pagenum">06</span></div>
+</section>
+
+<!-- SLIDE 7 — ARSITEKTUR & TEKNOLOGI -->
+<section class="slide">
+  <div class="content">
+    <div class="eyebrow">Perancangan Sistem</div>
+    <h1 class="title">Arsitektur &amp; Teknologi</h1>
+    <div class="accent-bar"></div>
+    <div class="flow" style="justify-content:center;margin-bottom:18px;">
+      <span class="node">Pengguna</span><span class="arrow">→</span>
+      <span class="node" style="border-color:var(--teal);color:var(--teal);">Frontend — React (SPA)</span><span class="arrow">→</span>
+      <span class="node" style="border-color:var(--navy);">Backend — Laravel REST API</span><span class="arrow">→</span>
+      <span class="node" style="border-color:var(--accent);color:var(--accent);">Database — MySQL</span>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <h3><span class="ico">⚙</span> Teknologi</h3>
+        <ul>
+          <li><strong>Backend:</strong> Laravel 10 (PHP 8.1) + Sanctum (auth token)</li>
+          <li><strong>Frontend:</strong> React 19 + Vite + React Router</li>
+          <li><strong>Database:</strong> MySQL / MariaDB</li>
+          <li><strong>Pola:</strong> Client–Server terpisah (REST API / JSON)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3><span class="ico">🔗</span> Integrasi Pihak Ketiga</h3>
+        <ul>
+          <li><strong>Midtrans</strong> — payment gateway pembayaran online</li>
+          <li><strong>Biteship</strong> — cek ongkir &amp; pelacakan resi (J&amp;T)</li>
+          <li><strong>SMTP Mail</strong> — verifikasi email OTP &amp; notifikasi</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand">SR Fashion Style — Sidang KP</span><span class="pagenum">07</span></div>
+</section>
+
+<!-- SLIDE 8 — FITUR MARKETPLACE (CUSTOMER) -->
+<section class="slide">
+  <div class="content">
+    <div class="eyebrow">Implementasi · Fitur</div>
+    <h1 class="title">Modul Marketplace (Customer)</h1>
+    <div class="accent-bar"></div>
+    <div class="two-col">
+      <div>
+        <ul class="points">
+          <li><strong>Registrasi &amp; Login</strong> — dengan verifikasi email OTP</li>
+          <li><strong>Katalog Produk</strong> — varian (warna/ukuran), harga, rating &amp; ulasan</li>
+          <li><strong>Keranjang &amp; Checkout</strong> — alamat, ongkir otomatis, pembayaran</li>
+          <li><strong>Pelacakan Pesanan</strong> — status order &amp; resi pengiriman</li>
+          <li><strong>Ulasan Produk</strong> — diberikan setelah pesanan selesai</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3><span class="ico">💳</span> Pilihan Pembayaran</h3>
+        <ul>
+          <li><strong>Online</strong> — via Midtrans (Snap)</li>
+          <li><strong>Bayar di Toko</strong> — dikonfirmasi kasir saat ambil barang</li>
+        </ul>
+        <h3 style="margin-top:16px;"><span class="ico">🚚</span> Pengiriman</h3>
+        <ul>
+          <li>Kurir J&amp;T (ongkir otomatis Biteship)</li>
+          <li>Ambil di toko (pickup)</li>
+        </ul>
+        <h3 style="margin-top:16px;"><span class="ico">⭐</span> Best Product</h3>
+        <ul>
+          <li>Produk unggulan pilihan admin tampil di homepage</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand">SR Fashion Style — Sidang KP</span><span class="pagenum">08</span></div>
+</section>
+
+<!-- SLIDE 9 — FITUR POS & ADMIN -->
+<section class="slide">
+  <div class="content">
+    <div class="eyebrow">Implementasi · Fitur</div>
+    <h1 class="title">Modul POS Kasir &amp; Dashboard Admin</h1>
+    <div class="accent-bar"></div>
+    <div class="two-col">
+      <div class="card" style="background:#fff5f6;border-color:#f6c9d1;">
+        <h3><span class="ico">🧾</span> POS Kasir</h3>
+        <ul>
+          <li>Buka / tutup <strong>shift</strong> + hitung selisih kas</li>
+          <li>Transaksi langsung: cash, QRIS, transfer, kartu</li>
+          <li>Cetak struk &amp; proses <strong>refund</strong></li>
+          <li>Konfirmasi pembayaran "bayar di toko"</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3><span class="ico">📊</span> Dashboard Admin / Owner</h3>
+        <ul>
+          <li>CRUD produk, kategori, varian, &amp; inventori</li>
+          <li>Manajemen order &amp; data kasir</li>
+          <li>Laporan penjualan (online + POS) ekspor Excel/PDF</li>
+          <li>Manajemen media promosi &amp; produk unggulan</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note">Hak akses berbasis peran (RBAC): <strong>Customer · Kasir · Admin · Owner</strong> — setiap peran punya menu dan kewenangan berbeda.</div>
+  </div>
+  <div class="footer"><span class="brand">SR Fashion Style — Sidang KP</span><span class="pagenum">09</span></div>
+</section>
+
+<!-- SLIDE 10 — PERANCANGAN DATABASE -->
+<section class="slide">
+  <div class="content">
+    <div class="eyebrow">Perancangan Sistem</div>
+    <h1 class="title">Perancangan Basis Data</h1>
+    <div class="accent-bar"></div>
+    <div class="two-col" style="grid-template-columns: 1.25fr 0.75fr;">
+      <div>
+        <p style="font-size:15px;color:#334155;margin-bottom:12px;">Basis data dirancang dengan <strong>ERD &rarr; Transformasi &rarr; LRS</strong>, menghasilkan tabel-tabel terhubung yang menyatukan data online dan POS:</p>
+        <div class="three-col" style="gap:12px;">
+          <div class="card" style="padding:14px;"><h3 style="font-size:14px;"><span class="ico" style="width:22px;height:22px;font-size:11px;">P</span> Produk</h3><p style="font-size:13px;">products · variants · images · inventories · categories</p></div>
+          <div class="card" style="padding:14px;"><h3 style="font-size:14px;"><span class="ico" style="width:22px;height:22px;font-size:11px;">O</span> Order</h3><p style="font-size:13px;">orders · order_items · reviews</p></div>
+          <div class="card" style="padding:14px;"><h3 style="font-size:14px;"><span class="ico" style="width:22px;height:22px;font-size:11px;">K</span> POS</h3><p style="font-size:13px;">cashier_staff · pos_shifts · pos_transactions · items</p></div>
+        </div>
+        <div class="note" style="margin-top:16px;">Relasi kunci: 1 produk → banyak varian → 1 inventori; 1 order → banyak item; 1 shift kasir → banyak transaksi POS.</div>
+      </div>
+      <div class="card">
+        <h3><span class="ico">🗄</span> Ringkasan</h3>
+        <ul>
+          <li>15 tabel utama (+ 2 sistem)</li>
+          <li>6 modul bisnis</li>
+          <li>Integritas data: <em>foreign key</em> &amp; cascade</li>
+          <li>Stok tersinkron lintas kanal</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="brand">SR Fashion Style — Sidang KP</span><span class="pagenum">10</span></div>
+</section>
+
+<!-- SLIDE 11 — PENGUJIAN -->
+<section class="slide">
+  <div class="content">
+    <div class="eyebrow">Pengujian Sistem</div>
+    <h1 class="title">Hasil Pengujian (Black-box / API)</h1>
+    <div class="accent-bar"></div>
+    <div class="stat-row" style="margin-bottom:22px;">
+      <div class="stat"><div class="num">173</div><div class="lbl">Total Test Case</div></div>
+      <div class="stat"><div class="num">87</div><div class="lbl">Skenario Positif</div></div>
+      <div class="stat"><div class="num">86</div><div class="lbl">Skenario Negatif</div></div>
+      <div class="stat"><div class="num">10</div><div class="lbl">Modul Diuji</div></div>
+    </div>
+    <table>
+      <thead><tr><th>Modul</th><th>Cakupan Pengujian</th><th style="width:90px;">Hasil</th></tr></thead>
+      <tbody>
+        <tr><td>Autentikasi</td><td>Register, login, OTP, reset/ubah password</td><td><span class="tag green">Sesuai</span></td></tr>
+        <tr><td>Katalog &amp; Produk</td><td>Produk, varian, kategori, inventori, best product</td><td><span class="tag green">Sesuai</span></td></tr>
+        <tr><td>Checkout &amp; Bayar</td><td>Order, ongkir, Midtrans, bayar di toko</td><td><span class="tag green">Sesuai</span></td></tr>
+        <tr><td>POS Kasir</td><td>Shift, transaksi, refund, pencarian produk</td><td><span class="tag green">Sesuai</span></td></tr>
+        <tr><td>Laporan</td><td>Laporan penjualan &amp; ekspor Excel/PDF</td><td><span class="tag green">Sesuai</span></td></tr>
+      </tbody>
+    </table>
+    <div class="note" style="background:#eef6f4;border-color:var(--teal);color:#0f5e57;">Seluruh fitur utama berjalan sesuai kebutuhan pengguna dan mendukung operasional SR Fashion Style.</div>
+  </div>
+  <div class="footer"><span class="brand">SR Fashion Style — Sidang KP</span><span class="pagenum">11</span></div>
+</section>
+
+<!-- SLIDE 12 — KESIMPULAN & SARAN -->
+<section class="slide">
+  <div class="content">
+    <div class="eyebrow">Penutup</div>
+    <h1 class="title">Kesimpulan &amp; Saran</h1>
+    <div class="accent-bar"></div>
+    <div class="two-col">
+      <div class="card" style="background:#eef6f4;border-color:#bfe0d9;">
+        <h3><span class="ico" style="background:var(--teal);">✓</span> Kesimpulan</h3>
+        <ul>
+          <li>Sistem marketplace &amp; POS terintegrasi <strong>berhasil dibangun</strong> sesuai kebutuhan pengguna.</li>
+          <li>Penjualan offline (POS) &amp; online (marketplace) terintegrasi dalam satu platform.</li>
+          <li>Pengelolaan produk, stok, transaksi, &amp; laporan jadi lebih terpusat, terstruktur, &amp; efisien.</li>
+          <li>Dibangun dengan SDLC: Laravel, React, MySQL.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3><span class="ico">→</span> Saran Pengembangan</h3>
+        <ul>
+          <li>Memperlengkap fitur <strong>payment gateway</strong> untuk pembayaran online yang lebih lengkap &amp; aman.</li>
+          <li>Pengembangan ke versi <strong>mobile / Android</strong> agar akses lebih mudah.</li>
+          <li>Pemeliharaan berkala: keamanan data, backup, perbaikan bug, pembaruan fitur.</li>
+          <li>Pelatihan admin/owner agar sistem digunakan optimal.</li>
+        </ul>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:26px;font-size:20px;font-weight:800;color:var(--navy);">Terima Kasih</div>
+  </div>
+  <div class="footer"><span class="brand">SR Fashion Style — Sidang KP</span><span class="pagenum">12</span></div>
+</section>
+
+</body>
+</html>

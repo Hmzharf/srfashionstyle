@@ -39,10 +39,12 @@ class AdminReportsController extends Controller
             return !$isCancelled && $isCompleted && $isPaid;
         })->values();
 
+        // Sertakan transaksi 'refunded' (grand_total negatif) agar refund
+        // mengurangi revenue, konsisten dengan perhitungan di detail kasir.
         $posTransactions = PosTransaction::query()
             ->with(['items'])
             ->whereBetween('created_at', [$dateFrom, $dateTo])
-            ->where('status', 'completed')
+            ->whereIn('status', ['completed', 'refunded'])
             ->latest()
             ->get();
 
@@ -50,15 +52,20 @@ class AdminReportsController extends Controller
             return (float) ($order->grand_total ?? $order->total ?? 0);
         });
 
+        // Revenue dari net seluruh transaksi (completed + refunded negatif).
         $posRevenue = $posTransactions->sum(function ($trx) {
             return (float) ($trx->grand_total ?? 0);
         });
 
         $totalRevenue = $onlineRevenue + $posRevenue;
 
+        // Hitungan jumlah transaksi & item terjual hanya dari penjualan asli,
+        // tanpa baris refund agar tidak menggandakan kuantitas.
+        $completedPosTransactions = $posTransactions->where('status', 'completed');
+
         $totalOrders = $onlineOrders->count();
         $completedPaidOrders = $validOnlineOrders->count();
-        $totalPosTransactions = $posTransactions->count();
+        $totalPosTransactions = $completedPosTransactions->count();
 
         $totalItemsSoldOnline = $validOnlineOrders->sum(function ($order) {
             return collect($order->items)->sum(function ($item) {
@@ -66,7 +73,7 @@ class AdminReportsController extends Controller
             });
         });
 
-        $totalItemsSoldPos = $posTransactions->sum(function ($trx) {
+        $totalItemsSoldPos = $completedPosTransactions->sum(function ($trx) {
             return collect($trx->items)->sum(function ($item) {
                 return (int) ($item->qty ?? 0);
             });

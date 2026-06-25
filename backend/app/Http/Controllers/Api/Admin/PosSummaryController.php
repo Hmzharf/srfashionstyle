@@ -20,11 +20,16 @@ class PosSummaryController extends Controller
             ? Carbon::parse($request->input('date_to'))->endOfDay()
             : Carbon::now()->endOfDay();
 
+        // Revenue memperhitungkan transaksi 'completed' (positif) DAN 'refunded'
+        // (bernilai negatif) agar refund otomatis mengurangi pendapatan.
         $transactionsQuery = PosTransaction::query()
             ->whereBetween('created_at', [$dateFrom, $dateTo])
-            ->where('status', 'completed');
+            ->whereIn('status', ['completed', 'refunded']);
 
-        $transactionsCount = (clone $transactionsQuery)->count();
+        // Jumlah transaksi hanya menghitung penjualan asli (tanpa baris refund).
+        $transactionsCount = (clone $transactionsQuery)
+            ->where('status', 'completed')
+            ->count();
         $revenuePos = (clone $transactionsQuery)->sum('grand_total');
 
         $revenueCash = (clone $transactionsQuery)
@@ -42,7 +47,10 @@ class PosSummaryController extends Controller
             5 => 0,
         ];
 
-        $transactions = (clone $transactionsQuery)->get(['created_at']);
+        // Tren mingguan hanya menghitung transaksi penjualan asli (tanpa refund).
+        $transactions = (clone $transactionsQuery)
+            ->where('status', 'completed')
+            ->get(['created_at']);
 
         foreach ($transactions as $trx) {
             $day = (int) $trx->created_at->day;
